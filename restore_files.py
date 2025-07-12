@@ -28,8 +28,6 @@ def main_function():
 			print(f"\nNo .log file found in '{a_folder.name}'")
 
 def extract_scripts(log_file):
-	# Output folder
-	#main_folder = os.path.dirname(log_file)
 	main_folder = os.path.basename(os.path.dirname(log_file))
 	OUTPUT_FOLDER = os.path.join(folderloc_run, "recovered_scripts", main_folder)
 	os.makedirs(OUTPUT_FOLDER, exist_ok=True)
@@ -64,8 +62,7 @@ def extract_scripts(log_file):
 				current_script.append(line)
 
 	# Catch last one
-	if current_script:
-		scripts.append("\n".join(current_script))
+	if (current_script): scripts.append("\n".join(current_script))
 
 	print(f"\t\tFound {len(scripts)} scripts")
 
@@ -75,8 +72,6 @@ def extract_scripts(log_file):
 	# Save each script to a file
 	script_names = []
 	for i, script in enumerate(scripts):
-		# Try to extract the script name
-		
 		# Clean up some left over crap...
 		script = "// ==UserScript==" + script.split("// ==UserScript==")[1]
 		
@@ -84,7 +79,6 @@ def extract_scripts(log_file):
 		try:
 			# Remove control characters, keep \n and \t
 			safe_script = re.sub(r'[^\x09\x0A\x0D\x20-\x7E]', '', script)
-			# Try decoding literal escaped characters like \n, \t, etc.
 			script = bytes(safe_script, "utf-8").decode("unicode_escape")
 		except Exception as e:
 			print("\tUnicode escape decoding failed")
