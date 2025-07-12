@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+backups/
+recovered_scripts/
+*.log
