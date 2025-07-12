@@ -1,9 +1,14 @@
 import os
 import re
+import warnings
 
 folderloc_run = os.path.dirname(os.path.abspath(__file__))
-folderloc_backups = os.path.join(folderloc_run, "backups")
-os.makedirs(folderloc_backups, folderloc_backups)
+folderloc_backups = os.path.join(folderloc_run, "Backups")
+
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+# Hiding warning because this will pop up: DeprecationWarning: invalid escape sequence '\o'
+#	from here: script = bytes(safe_script, "utf-8").decode("unicode_escape")
+#	It is from the backup file, so nothing we can do about it...
 
 def main_function():
 	for a_folder in os.scandir(folderloc_backups):
@@ -29,7 +34,7 @@ def extract_scripts(log_file):
 	OUTPUT_FOLDER = os.path.join(folderloc_run, "recovered_scripts", main_folder)
 	os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
-	print(f"Scanning <{log_file}>")
+	print(f"\tScanning: {os.path.basename(os.path.dirname(log_file))}\{os.path.basename(log_file)}")
 	with open(log_file, "rb") as f:
 		data = f.read()
 
@@ -62,7 +67,7 @@ def extract_scripts(log_file):
 	if current_script:
 		scripts.append("\n".join(current_script))
 
-	print(f"Found {len(scripts)} scripts")
+	print(f"\t\tFound {len(scripts)} scripts")
 
 	def sanitise_string(string_in):
 		return re.sub(r'[\\/*?:"<>|]', "_", string_in)
@@ -81,7 +86,6 @@ def extract_scripts(log_file):
 			safe_script = re.sub(r'[^\x09\x0A\x0D\x20-\x7E]', '', script)
 			# Try decoding literal escaped characters like \n, \t, etc.
 			script = bytes(safe_script, "utf-8").decode("unicode_escape")
-			print("\tUnicode escape decode successful")
 		except Exception as e:
 			print("\tUnicode escape decoding failed")
 			print(e)
@@ -121,12 +125,12 @@ def extract_scripts(log_file):
 		
 		file_path = os.path.join(OUTPUT_FOLDER, filename)
 		
-		print(f"\tScript '{filename}' has {len(script_lines)} lines of code")
+		print(f"\t\t\tScript '{filename}' has {len(script_lines)} lines of code")
 		
 		with open(file_path, "w", encoding="utf-8") as f:
 			for line in script_lines:
 				f.write(line + '\n')
 
-	print(f"Recovered {len(scripts)} scripts to folder '{os.path.basename(OUTPUT_FOLDER)}'")
+	print(f"\tRecovered {len(scripts)} scripts to folder '{os.path.basename(OUTPUT_FOLDER)}'")
 
 main_function()
